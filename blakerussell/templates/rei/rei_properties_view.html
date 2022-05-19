@@ -1,0 +1,661 @@
+{% extends 'blakerussell/base.html' %}
+
+{% block content %}
+{% load widget_tweaks %}
+
+<style>
+.image { 
+   position: relative; 
+   width: 100%; /* for IE 6 */
+}
+h2 { 
+   position: absolute; 
+   top: 260px; 
+   left: 0; 
+   width: 77%; 
+}
+h2 span { 
+   color: white; 
+   font: bold 20px/24px Helvetica, Sans-Serif; 
+   letter-spacing: -1px;
+   background: rgb(0, 0, 0); /* fallback color */
+   background: rgba(0, 0, 0, .7);
+   padding: 5px; 
+}
+h2 span.spacer {
+   padding:0 5px;
+}
+</style>
+
+
+{% for group in request.user.groups.all %}
+{% if group.name == 're-admin' %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{{ request.META.HTTP_REFERER }}">Go Back
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'rei_properties' %}">Property List</a>
+        </li>
+      </ul>
+     <table class="tbnob">
+        <tr class="trnob">
+                        <td class="tgrightbwnob25w">
+                                <p class="text-muted">{% for message in statusmessages %} {{ message |safe }}<br>{% endfor %}</p>
+                </td>
+                <td class="tgrightbvtopwnob7w">
+                        <ol class="breadcrumb">
+                        {% if user.is_authenticated %}
+                        <li class="breadcrumb-item active">Logged in as {{ user.username }}</li>
+                        <li class="breadcrumb-item"><a href="{% url 'logout' %}?next=/">Logout</a></li>      
+                        <li class="breadcrumb-item "><a href="{% url 'dashboard' %}" title="Home">Home</a></li>
+                </ol>
+                        {% else %}
+                        <ol class="breadcrumb">
+                        Please Login -
+                        <li class="breadcrumb-item "><a href="{% url 'login' %}?next=/">Login</a></li>
+                        {% endif %}
+                </ol>
+                </td>
+        </tr>
+</table>
+    </div>
+  </div>
+</nav>
+
+
+<table>
+ <tr>
+  <th colspan=4><h5><a href="{{ prop.zillow_link }}" target="_blank">{{ prop.address }}, {{ prop.city }}, {{ prop.state }} {{ prop.zipcode }}</a></h5></th>
+ </tr>
+<tr>
+  <td><iframe
+  width="400"
+  height="250"
+  frameborder="0" style="border:0"
+  src="https://www.google.com/maps/embed/v1/place?key={{ googleapi_key }}&q={{ location }}" allowfullscreen>
+</iframe></td>
+  <td><img src="{{ prop.image_url }}" width=400 height=250><h2><span class="image">{{ prop.bedrooms }} bd, {{ prop.bathrooms }} ba | {{ prop.homesize }} sqft | Built in {{ prop.yearbuilt }}</span></h2></td>
+  <td><iframe
+  width="400"
+  height="250"
+  frameborder="0" style="border:0"
+  src="https://www.google.com/maps/embed/v1/streetview?key={{ googleapi_key }}&location={{ prop.latitude }},{{ prop.longitude }}" allowfullscreen>
+</iframe></td>
+<td valign=top>
+        <FONT COLOR="#A0A0A0" size=2><div style="text-align:left;"><b>Sales Price:</div></FONT></b>
+        <FONT COLOR="#A0A0A0" size=6><div style="text-align:left;">{{ prop.sales_price }}</FONT>
+        <table style="border: none;">
+        <th colspan=4 style="border: none;">Proforma</th>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"><b>Rent Payment:</b></td>
+                <td class="tgmainlefttopnob">{{ prop.rent_price }}</td>
+                <td class="tgmainrighttopnob"><b>Cash on Cash:</b> </td>
+                <td class="tgmainlefttopnob">{{ propview1yr.cashoncash }}</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"><b>Down Payment:</b> </td>
+                <td class="tgmainlefttopnob">{{ prop.down }}</td>
+                <td class="tgmainrighttopnob"><b>1% Rule:</b> </td>
+                <td class="tgmainlefttopnob">{{ propview1yr.onepercentrule }}</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"><b>Closing Costs:</b> </td>
+                <td class="tgmainlefttopnob">{{ prop.closingcost }}</td>
+                <td class="tgmainrighttopnob"><b>Cap Rate:</b> </td>
+                <td class="tgmainlefttopnob">{{ propview1yr.caprate }}</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"><b>Investment:</b> </td>
+                <td class="tgmainlefttopnob">{{ propview1yr.totalinvestment }}</td>
+                <td class="tgmainrighttopnob"><b>Gross Yield:</b> </td>
+                <td class="tgmainlefttopnob">{{ propview1yr.grossyield }}</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"><b>Interest Rate:</b> </td>
+                <td class="tgmainlefttopnob">{{ prop.interestrate }}%</td>
+                <td class="tgmainrighttopnob"><b> Ann. Return:</b> </td>
+                <td class="tgmainlefttopnob">{{ propview1yr.annreturn }}</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"><b>Net Cash Flow</b></td>
+                <td class="tgmainlefttopnob">{{ propview1yr.totalnetcf1y }}</td>
+                <td class="tgmainrighttopnob"><b>Appreciation:</b> </td>
+                <td class="tgmainlefttopnob">{{ prop.appraise_rate }}</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"> </td>
+                <td class="tgmainlefttopnob"> </td>
+                <td class="tgmainrighttopnob"><b>Vacancy Rate:</b> </td>
+                <td class="tgmainlefttopnob">{{ prop.vacancyrate }}%</td>
+        </tr>
+        <tr class="trnob">
+                <td class="tgmainrighttopnob"> </td>
+                <td class="tgmainlefttopnob"> </td>
+                <td class="tgmainrighttopnob"> </td>
+                <td class="tgmainlefttopnob"> </td>
+        </tr>
+        </table>
+</td>
+ </tr>
+</table>
+
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#notes">Notes</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" data-bs-toggle="tab" href="#cashflow">Cash Flow</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#equity">Equity</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#publicrecord">Public Record</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#neighborhood">Neighborhood</a>
+  </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Manage</a>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="{% url 'rei_properties_edit' prop.pk %}">Edit Property</a>
+      <a class="dropdown-item" href="{% url 'rei_properties_update' prop.pk %}" onclick="return confirm('Are you sure you want to refresh all free data?')">Refresh Data</a>
+    </div>
+  </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Export</a>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="{% url 'rei_properties_view_print' prop.pk %}">Print View</a>
+      <a class="dropdown-item" href="{% url 'rei_properties_view_pdf' prop.pk %}">Export to PDF</a>
+    </div>
+  </li>
+</ul>
+<div id="myTabContent" class="tab-content">
+  <div class="tab-pane fade" id="notes">
+    <form method="POST" novalidate>
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+    <div class="form-group">
+      {{ field.label_tag }}
+
+      {% if form.is_bound %}
+        {% if field.errors %}
+          {% render_field field class="form-control is-invalid" %}
+          {% for error in field.errors %}
+            <div class="invalid-feedback">
+              {{ error }}
+            </div>
+          {% endfor %}
+        {% else %}
+          {% render_field field class="form-control is-valid" %}
+        {% endif %}
+      {% else %}
+        {% render_field field class="form-control" %}
+      {% endif %}
+
+      {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+
+<div class="tab-pane fade show active" id="cashflow">
+<table style="width:75%;position:relative;white-space:normal;">
+<tr class="thnob">
+<td style="width: 25%;vertical-align:top;">
+    <table class="table table-hover">
+        <tr class="trnob">
+        <th colspan="2">Monthly Cashflow</th>
+        </tr>
+        <tr class="trnob">
+        <th class="tgleft70w" colspan="2">Income</th>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Rent</td>
+        <td class="tgrightnob">{{ prop.rent_price }}</td>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Vacancy Factor ({{ prop.vacancyrate }}%)</td>
+        <td class="tgrightnob">{{ propview1yr.vacancyfactor }}</td>
+        </tr>
+        <tr class="trnob">
+        <th class="tgleft10p">Expected Rent</th>
+        <th class="tgrightnob">{{ propview1yr.expectedrent1m }}</th>
+        </tr>
+        <tr>
+        <th class="tgleft70w" colspan="2">Expenses</th>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Property Taxes</td>
+        <td class="tgrightnob">{{ propview1yr.propertytaxes1m }}</td>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Property Management ({{ prop.pmrate }}%)</td>
+        <td class="tgrightnob">{{ propview1yr.pmfee1m }}</td>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">Leasing Fees ({{ prop.leaserate }}%)</th>
+        <td class="tgrightnob">{{ propview1yr.leasefee1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">HOA Fees</th>
+        <td class="tgrightnob">{{ propview1yr.hoafee1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">Property Insurance</th>
+        <td class="tgrightnob">{{ propview1yr.insurancefee1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">Other Fees</th>
+        <td class="tgrightnob">{{ propview1yr.otherfee1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">Repairs & Maint. ({{prop.repairrate}}%)</th>
+        <td class="tgrightnob">{{ propview1yr.repairfee1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <th class="tgleftnob">Operating Expenses</th>
+        <th class="tgrightnob">{{ propview1yr.opex1m }}</th>
+        </tr>
+        <tr>
+        <th class="tgleft10p">Net Operating Income</th>
+        <th class="tgrightnob">{{ propview1yr.noi1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">CapEX ({{ prop.capexrate }}% Reserve)</th>
+        <td class="tgrightnob">{{ propview1yr.capex1m }}</th>
+        </tr>
+        <tr>
+        <th class="tgleftnob">Total Unlevered Cash Flow</th>
+        <th class="tgrightnob">{{ propview1yr.unlevcf1m }}</th>
+        </tr>
+        <tr class="trnob">
+        <td class="tgleft10p">Mortgage</th>
+        <td class="tgrightnob">{{ propview1yr.mortgage1m }}</th>
+        </tr>
+        <tr>
+        <th class="tgleftnob">Total Net Cash Flow</th>
+        <th class="tgrightnob">{{ propview1yr.totalnetcf1m }}</th>
+        </tr>
+  </table>
+</td>
+<td style="width: 75%;vertical-align:top">
+        <table class="table table-hover">
+        <tr class="trnob">
+        <th colspan="5">Projected Cashflow</th>
+        </tr>
+        <tr class="trnob">
+        <th class="thnob"></th>
+        <th class="thnob">Year 1</th>
+        <th class="thnob">Year 5</th>
+        <th class="thnob">Year 10</th>
+        <th class="thnob">Year 15</th>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Expected Rent ({{ prop.rent_growth }}% YoY Growth)</td>
+        <td class="tdnob">{{ propview1yr.expectedrent1y }}</td>
+        <td class="tdnob">{{ propview5yr.expectedrent }}</td>
+        <td class="tdnob">{{ propview10yr.expectedrent }}</td>
+        <td class="tdnob">{{ propview15yr.expectedrent }}</td>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Property Taxes</td>
+        <td class="tdnob">{{ propview1yr.propertytaxes1y }}</td>
+        <td class="tdnob">{{ propview5yr.propertytaxes }}</td>
+        <td class="tdnob">{{ propview10yr.propertytaxes }}</td>
+        <td class="tdnob">{{ propview15yr.propertytaxes }}</td>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Repairs & Maint. (Reserve)</td>
+        <td class="tdnob">{{ propview1yr.repairfee1y }}</td>
+        <td class="tdnob">{{ propview5yr.repairfee }}</td>
+        <td class="tdnob">{{ propview10yr.repairfee }}</td>
+        <td class="tdnob">{{ propview15yr.repairfee }}</td>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Other Expenses (PM,Lease,HOA,Ins.)</td>
+        <td class="tdnob">{{ propview1yr.nonrepairfee1y }}</td>
+        <td class="tdnob">{{ propview5yr.nonrepairfee }}</td>
+        <td class="tdnob">{{ propview10yr.nonrepairfee }}</td>
+        <td class="tdnob">{{ propview15yr.nonrepairfee }}</td>
+        </tr>
+        <tr>  
+        <th class="tgleft10p">Net Operating Income</th>
+        <th class="tdnob">{{ propview1yr.noi1y }}</th>
+        <th class="tdnob">{{ propview5yr.noi }}</th>
+        <th class="tdnob">{{ propview10yr.noi }}</th>
+        <th class="tdnob">{{ propview15yr.noi }}</th>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">CapEX (Reserve)</td>
+        <td class="tdnob">{{ propview1yr.capex1y }}</td>
+        <td class="tdnob">{{ propview5yr.capex }}</td>
+        <td class="tdnob">{{ propview10yr.capex }}</td>
+        <td class="tdnob">{{ propview15yr.capex }}</td>
+        </tr>
+        <tr class="trnob">  
+        <th class="tgleft10p">Total Unlevered CF</th>
+        <th class="tdnob">{{ propview1yr.unlevcf1y }}</th>
+        <th class="tdnob">{{ propview5yr.unlevcf }}</th>
+        <th class="tdnob">{{ propview10yr.unlevcf }}</th>
+        <th class="tdnob">{{ propview15yr.unlevcf }}</th>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Mortgage Payment</td>
+        <td class="tdnob">{{ propview1yr.mortgage1y }}</td>
+        <td class="tdnob">{{ propview5yr.mortgage }}</td>
+        <td class="tdnob">{{ propview10yr.mortgage }}</td>
+        <td class="tdnob">{{ propview15yr.mortgage }}</td>
+        </tr>
+        <tr>  
+        <th class="tgleft10p">Total Net Cash Flow</th>
+        <th class="tdnob">{{ propview1yr.totalnetcf1y }}</th>
+        <th class="tdnob">{{ propview5yr.totalnetcf }}</th>
+        <th class="tdnob">{{ propview10yr.totalnetcf }}</th>
+        <th class="tdnob">{{ propview15yr.totalnetcf }}</th>
+        </tr>
+        <tr>  
+        <th class="tgleft10p">Post-State-Tax Net Cash Flow</th>
+        <th class="tdnob">{{ propview1yr.posttaxncf }}</th>
+        <th class="tdnob">{{ propview5yr.posttaxncf }}</th>
+        <th class="tdnob">{{ propview10yr.posttaxncf }}</th>
+        <th class="tdnob">{{ propview15yr.posttaxncf }}</th>
+        </tr>
+  </table>
+</td>
+</tr>
+</table>
+
+</div>
+  <div class="tab-pane fade" id="equity">
+        <table style="width:75%;position:relative;white-space:normal;" class="table table-hover">
+        <tr class="trnob">
+        <th colspan="5">Projected Equity</th>
+        </tr>
+        <tr class="trnob">
+        <th class="thnob"></th>
+        <th class="thnob">Year 1</th>
+        <th class="thnob">Year 5</th>
+        <th class="thnob">Year 10</th>
+        <th class="thnob">Year 15</th>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Property Value ({{ prop.appraise_rate }} Appreciation)</td>
+        <td class="tdnob">{{ propview1yr.propertyvalue }}</td>
+        <td class="tdnob">{{ propview5yr.propertyvalue }}</td>
+        <td class="tdnob">{{ propview10yr.propertyvalue }}</td>
+        <td class="tdnob">{{ propview15yr.propertyvalue }}</td>
+        </tr>
+        <tr class="trnob">  
+        <td class="tgleft10p">Loan Balance</td>
+        <td class="tdnob">{{ propview1yr.principal }}</td>
+        <td class="tdnob">{{ propview5yr.principal }}</td>
+        <td class="tdnob">{{ propview10yr.principal }}</td>
+        <td class="tdnob">{{ propview15yr.principal }}</td>
+        </tr>
+        <tr>  
+        <th class="tgleft10p">Equity</th>
+        <td class="tdnob">{{ propview1yr.equity }}</td>
+        <td class="tdnob">{{ propview5yr.equity }}</td>
+        <td class="tdnob">{{ propview10yr.equity }}</td>
+        <td class="tdnob">{{ propview15yr.equity }}</td>
+        </tr>
+        <tr>  
+        <th class="tgleft10p">Equity + CF</th>
+        <td class="tdnob">{{ propview1yr.posttaxncfplusequity }}</td>
+        <td class="tdnob">{{ propview5yr.posttaxncfplusequity }}</td>
+        <td class="tdnob">{{ propview10yr.posttaxncfplusequity }}</td>
+        <td class="tdnob">{{ propview15yr.posttaxncfplusequity }}</td>
+        </tr>
+  </table>
+  </div>
+
+<div class="tab-pane fade" id="publicrecord">
+<table class="tbnob">
+<tr class="trnob">
+<td class="tdnob" valign="top">
+        <table class="table table-hover">
+        <tr>
+        <th colspan=2>Property Details</th>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Year Built</FONT></td>
+         <td class="tgleftnow">{{ prop.yearbuilt }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Home Size</FONT></td>
+         <td class="tgleftnow">{{ prop.homesize }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Lot Size</FONT></td>
+         <td class="tgleftnow">{{ prop.lotsize }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Bedrooms</FONT></td>
+         <td class="tgleftnow">{{ prop.bedrooms }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Bathrooms</FONT></td>
+         <td class="tgleftnow">{{ prop.bathrooms }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Use Code</FONT></td>
+         <td class="tgleftnow">{{ prop.use_code }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Last Sold Date</FONT></td>
+         <td class="tgleftnow">{{ prop.last_sold_date }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Last Sold Price</FONT></td>
+         <td class="tgleftnow">{{ prop.last_sold_price }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Owner</FONT></td>
+         <td class="tgleft70w">{{ prop.owner_name }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Occupancy</FONT></td>
+         <td class="tgleft70w">{{ prop.occupancy_status }}</td>
+        </tr>
+        </table>
+</td>
+<td class="tdnob" valign="top">
+        <table class="table table-hover">
+        <tr>
+        <th colspan=2>Tax Appraisals</th>
+        </tr>
+        <tr>
+         <td colspan=2><FONT COLOR="#A0A0A0" size=4>{{ prop.county }}</FONT></td>
+        </tr>
+        <tr>
+         <td class="tgright70w"><FONT COLOR="#A0A0A0" size=4>Avg. YoY Appreciation</FONT></td>
+         <td class="tgleftnow">{{ prop.appraise_rate }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr1 }}</FONT></td>
+         <td class="tgleftnow">{{ prop.appraise_yr1 }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr2 }}</FONT></td>
+         <td class="tgleftnow">{{ prop.appraise_yr2 }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr3 }}</FONT></td>
+         <td class="tgleftnow">{{ prop.appraise_yr3 }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr4 }}</FONT></td>
+         <td class="tgleftnow">{{ prop.appraise_yr4 }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr5 }}</FONT></td>
+          <td class="tgleftnow">{{ prop.appraise_yr5 }}</td>
+        </tr>
+        </table>
+</td>
+<td class="tdnob" valign="top">
+        <table class="table table-hover">
+        <tr>
+        <th colspan=2>Tax Amount</th>
+          <tr>
+          <td class="tgright70w"><FONT COLOR="#A0A0A0" size=4>Avg. YoY Tax Increase</FONT></td>
+          <td class="tgleftnow">{{ prop.tax_rate }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr1 }}</FONT></td>
+          <td class="tgleftnow">{{ prop.tax_yr1 }}</td>
+        </tr>
+        <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr2 }}</FONT></td>
+          <td class="tgleftnow">{{ prop.tax_yr2 }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr3 }}</FONT></td>
+          <td class="tgleftnow">{{ prop.tax_yr3 }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr4 }}</FONT></td>
+         <td class="tgleftnow">{{ prop.tax_yr4 }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>{{ prop.yr5 }}</FONT></td>
+         <td class="tgleftnow">{{ prop.tax_yr5 }}</td>
+        </tr>
+        </table>
+</td>
+<td class="tdnob" valign="top">
+        <table class="table table-hover">
+        <tr>
+         <th colspan=2>Zillow Estimates</th>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Zestimate</FONT></td>
+          <td class="tgleftnow">{{ prop.zestimate }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Zestimate Range</FONT></td>
+          <td class="tgleftnow">{{ prop.zestimate_low }} - {{ prop.zestimate_high }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Rent Zestimate</FONT></td>
+          <td class="tgleftnow">{{ prop.rentzestimate }}</td>
+         </tr>
+         <tr>
+          <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Rent Zestimate Range</FONT></td>
+          <td class="tgleftnow">{{ prop.rentzestimate_low }} - {{ prop.rentzestimate_high }}</td>
+         </tr>
+        </table>
+</td>
+</tr>
+</table>
+</div>
+
+<div class="tab-pane fade" id="neighborhood">
+<table class="tbnob">
+<tr class="trnob">
+<td class="tdnob" valign="top">
+        <table class="table table-hover">
+        <tr>
+        <th colspan=2>Area Vibes Ratings</th>
+        </tr>
+        <tr>
+        <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Livability</FONT></td>
+        <td class="tgleftnow">{{ prop.av_livability }}</td>
+        </tr>
+        <tr>
+        <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Crime</FONT></td>
+        <td class="tgleftnow">{{ prop.av_crime }}</td>
+        </tr>
+        <tr>
+        <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Cost of Living</FONT></td>
+        <td class="tgleftnow">{{ prop.av_cost_of_living }}</td>
+        </tr>
+        <tr>
+        <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Schools</FONT></td>
+        <td class="tgleftnow">{{ prop.av_schools }}</td>
+        </tr>
+        <tr>
+        <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Employment</FONT></td>
+        <td class="tgleftnow">{{ prop.av_employment }}</td>
+        </tr>
+        <tr>
+         <td class="tgrightnow"><FONT COLOR="#A0A0A0" size=4>Housing</FONT></td>
+         <td class="tgleftnow">{{ prop.av_housing }}</td>
+        </tr>
+        <tr>
+         <td><FONT COLOR="#A0A0A0" size=4>User Ratings</FONT></td>
+        <td class="tgleftnow">{{ prop.av_user_ratings }}</td>
+        </tr>
+        </table>
+</td>
+<td class="tdnob" valign="top">
+    <table class="table table-hover">
+        <tr>
+        <th colspan=2>Great School Ratings</th>
+        </tr>
+        <tr>
+        <th>Rating</th>
+        <th>School</th>
+        </tr>
+        <tr>
+        <td><FONT COLOR="#A0A0A0" size=4>{{ prop.gs_rating_h }}</FONT></td>
+        <td>{{ prop.gs_name_h }}</td>
+        </tr>
+        <tr>
+        <td><FONT COLOR="#A0A0A0" size=4>{{ prop.gs_rating_m }}</FONT></td>
+        <td>{{ prop.gs_name_m }}</td>
+        </tr>
+        <tr>
+        <td><FONT COLOR="#A0A0A0" size=4>{{ prop.gs_rating_e }}</FONT></td>
+        <td>{{ prop.gs_name_e }}</td>
+        </tr>
+        </table>
+</td>
+<td class="tdnob" valign="top">
+        <table class="table table-hover">
+         <tr>
+        <th>Fema Incident Reports</th>
+        </tr>
+        <tr>
+        <td>{{ prop.fema1 }}</td>
+        </tr>
+        <tr>
+        <td>{{ prop.fema2 }}</td>
+        </tr>
+        <tr>
+        <td>{{ prop.fema3 }}</td>
+        </tr>
+        <tr>
+        <td>{{ prop.fema4 }}</td>
+        </tr>
+        <tr>
+        <td>{{ prop.fema4 }}</td>
+        </tr>
+        </table>
+</td>
+</tr>
+</table>
+</div>
+</div>
+
+{% endif %}
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,4 @@
+#Ignore App Files
+db.sqlite3
+blakerussell/secrets.py
+blakerussell/__pycache__

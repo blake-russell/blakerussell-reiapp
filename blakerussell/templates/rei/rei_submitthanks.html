@@ -1,0 +1,67 @@
+{% extends 'blakerussell/base.html' %}
+
+{% block content %}
+{% load widget_tweaks %}
+
+<script type="text/javascript">
+setTimeout(function() {
+     $.get("{% url 'rei_dashboard' %}") // Do something after 5 seconds
+}, 5000);
+</script>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'rei_dashboard' %}">Dashboard
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+      </ul>
+     <table class="tbnob">
+        <tr class="trnob">
+                        <td class="tgrightbwnob25w">
+                                <p class="text-muted">{% for message in statusmessages %} {{ message |safe }}<br>{% endfor %}</p>
+                </td>
+                <td class="tgrightbvtopwnob7w">
+                        <ol class="breadcrumb">
+                        {% if user.is_authenticated %}
+                        <li class="breadcrumb-item active">Logged in as {{ user.username }}</li>
+                        <li class="breadcrumb-item"><a href="{% url 'logout' %}?next=/">Logout</a></li>      
+                        <li class="breadcrumb-item "><a href="{% url 'dashboard' %}" title="Home">Home</a></li>
+                </ol>
+                        {% else %}
+                        <ol class="breadcrumb">
+                        Please Login -
+                        <li class="breadcrumb-item "><a href="{% url 'login' %}?next=/">Login</a></li>
+                        {% endif %}
+                </ol>
+                </td>
+        </tr>
+</table>
+    </div>
+  </div>
+</nav>
+
+<h2>
+<FONT COLOR="#FFFFFF">Thank You</FONT>
+ </h2>
+
+
+{% for group in request.user.groups.all %}
+
+        {% if group.name == 're-guest' %}
+        <div id="headlinks">
+        <a href="{% url 'rei_dashboard' %}">Return to Dashboard</a>
+        </div>
+        {% endif %}
+
+{% endfor %}
+
+
+{% endblock %}

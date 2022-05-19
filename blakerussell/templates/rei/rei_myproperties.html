@@ -1,0 +1,100 @@
+{% extends 'blakerussell/base.html' %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'rei_dashboard' %}">Dashboard
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'rei_properties' %}">All Properties
+          </a>
+        </li>
+      </ul>
+     <table class="tbnob">
+        <tr class="trnob">
+                        <td class="tgrightbwnob25w">
+                                <p class="text-muted">{% for message in statusmessages %} {{ message |safe }}<br>{% endfor %}</p>
+                </td>
+                <td class="tgrightbvtopwnob7w">
+                        <ol class="breadcrumb">
+                        {% if user.is_authenticated %}
+                        <li class="breadcrumb-item active">Logged in as {{ user.username }}</li>
+                        <li class="breadcrumb-item"><a href="{% url 'logout' %}?next=/">Logout</a></li>      
+                        <li class="breadcrumb-item "><a href="{% url 'dashboard' %}" title="Home">Home</a></li>
+                </ol>
+                        {% else %}
+                        <ol class="breadcrumb">
+                        Please Login -
+                        <li class="breadcrumb-item "><a href="{% url 'login' %}?next=/">Login</a></li>
+                        {% endif %}
+                </ol>
+                </td>
+        </tr>
+</table>
+    </div>
+  </div>
+</nav>
+
+{% for group in request.user.groups.all %}
+{% if group.name == 're-admin' %}
+
+<h2>
+<FONT COLOR="#FFFFFF">My Properties</FONT>
+ </h2>
+
+<table class="table table-hover">
+ <tr>
+  <th>Address</th>
+  <th>City</th>
+  <th>State</th>
+  <th>Sale Price</th>
+  <th>Investment</th>
+  <th>Rent Price</th>
+  <th>1% Rule</th>
+  <th>Cash on Cash</th>
+  <th>Total Net CF</th>
+  <th>Annual ROI</th>
+  <th>Cap Rate</th>
+  <!-- <th>UserSub</th> -->
+  <th colspan=2>Actions</th>
+ </tr>
+
+{% for detail in detaillist %}
+ <tr class="table-light">
+  <td><a href="{% url 'rei_properties_view' detail.pk %}">{{ detail.address }}</a></td>
+  <td>{{ detail.city }}</td>
+  <td>{{ detail.state }}</td>
+  <td>{{ detail.sales_price }}</td>
+  <td>{{ detail.totalinvestment }}</td>
+  <td>{{ detail.rent_price }}</td>
+  <td>{{ detail.onepercentrule }}</td>
+  <td>{{ detail.cashoncash }}</td>
+  <td>{{ detail.totalnetcf1y }}</td>
+  <td>{{ detail.annreturn }}</td>
+  <td>{{ detail.caprate }}</td>
+  <!-- <td>{{ detail.usersub }}</td> -->
+  <td>
+        <a href="{% url 'rei_properties_edit' detail.pk %}">Edit</a>
+ </td>
+ <td>
+        <a href="{% url 'rei_properties_del' detail.pk %}" onclick="return confirm('Are you sure you want to delete this?')">Delete</a>
+ </td>
+ </tr>
+
+{% endfor %}
+</table>
+
+{% endif %}
+{% endfor %}
+
+{% endblock %}
