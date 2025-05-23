@@ -1,4 +1,5 @@
 # blakerussell-reiapp
+Personal Website & Private Section for:
 Real Estate Portfolio Application
 
 1. Manage Real Estate Properties
